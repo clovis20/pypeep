@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
-from .models import Profile
+from .models import Peep, Profile
 
 # Unregister Groups
 admin.site.unregister(Group)
@@ -22,3 +22,6 @@ admin.site.unregister(User)
 # Register User and Profile
 admin.site.register(User, UserAdmin)
 #admin.site.register(Profile)
+
+# Register Peep
+admin.site.register(Peep)

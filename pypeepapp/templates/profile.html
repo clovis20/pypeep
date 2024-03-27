@@ -8,10 +8,20 @@
         <div class="row">
             <div class="col-8">
                 <h1>{{ profile.user.username }}'s Profile</h1>
+                <br/>
+                {% if peeps %}
+                    {% for peep in peeps %}
+        
+                        <div class="alert alert-info" role="alert">
+                            {{ peep }}<br/><br/>
+                        </div>       
+
+                    {% endfor %}
+                {% endif %}
             </div>
 
             <div class="col-4">
-
+                <br/><br/><br/>
                 <div class="card">
                     <h5 class="card-header">Follows</h5>
                     <div class="card-body">

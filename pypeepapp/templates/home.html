@@ -2,4 +2,13 @@
 
 {% block content %}
     <h1>Peeps!</h1>
+
+    {% for peep in peeps %}
+    
+        <div class="alert alert-info" role="alert">
+            {{ peep }}<br/><br/>
+        </div>       
+
+    {% endfor %}
+
 {% endblock %}

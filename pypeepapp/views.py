@@ -1,9 +1,12 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from .models import Profile
+from .models import Peep, Profile
 
 def home(request):
-    return render(request, 'home.html', {})
+    if request.user.is_authenticated:
+        peeps = Peep.objects.all().order_by('-created_at')
+
+    return render(request, 'home.html', {'peeps':peeps})
 
 def profile_list(request):
     if request.user.is_authenticated:
@@ -16,6 +19,7 @@ def profile_list(request):
 def profile(request, pk):
     if request.user.is_authenticated:
         profile = Profile.objects.get(user_id=pk)
+        peeps = Peep.objects.filter(user_id=pk)
 
         #Post Form Logic
         if request.method == 'POST':
@@ -31,7 +35,7 @@ def profile(request, pk):
             #Save the profile
             current_user_profile.save()
 
-        return render(request, 'profile.html', {'profile':profile})
+        return render(request, 'profile.html', {'profile':profile, 'peeps':peeps})
     else:
         messages.success(request, ('You Must Be Logged In To View This Page..'))
         return redirect('home')
