@@ -1,12 +1,25 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from .models import Peep, Profile
+from .forms import PeepForm
 
 def home(request):
     if request.user.is_authenticated:
-        peeps = Peep.objects.all().order_by('-created_at')
+        form = PeepForm(request.POST or None)
+        if request.method == "POST":
+            if form.is_valid():
+                peep = form.save(commit=False)
+                peep.user = request.user
+                peep.save()
+                messages.success(request, ('Your Peep Has Been Posted..'))
+                return redirect('home')
 
-    return render(request, 'home.html', {'peeps':peeps})
+
+        peeps = Peep.objects.all().order_by('-created_at')
+        return render(request, 'home.html', {'peeps':peeps, 'form':form})
+    else:
+        peeps = Peep.objects.all().order_by('-created_at')
+        return render(request, 'home.html', {'peeps':peeps})
 
 def profile_list(request):
     if request.user.is_authenticated:

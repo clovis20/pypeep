@@ -13,8 +13,12 @@
                     {% for peep in peeps %}
         
                         <div class="alert alert-info" role="alert">
-                            {{ peep }}<br/><br/>
-                        </div>       
+                            {{ peep.body }}<br/>
+                            <small class="text-muted">
+                                ({{ peep.created_at }}) By 
+                                @{{ peep.user.username }}
+                            </small>
+                        </div>  <br/><br/>     
 
                     {% endfor %}
                 {% endif %}
