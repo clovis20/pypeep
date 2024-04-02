@@ -1,7 +1,12 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from .models import Peep, Profile
-from .forms import PeepForm
+from .forms import PeepForm, SignUpForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django import forms
+
 
 def home(request):
     if request.user.is_authenticated:
@@ -51,4 +56,59 @@ def profile(request, pk):
         return render(request, 'profile.html', {'profile':profile, 'peeps':peeps})
     else:
         messages.success(request, ('You Must Be Logged In To View This Page..'))
+        return redirect('home')
+    
+def login_user(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, ('You Have Been Logged In! Get PEEPING!'))
+            return redirect('home')
+        else:
+            messages.success(request, ('Loggin failed. Please try again..'))
+            return redirect('login')
+    else:
+        return render(request, 'login.html', {})
+
+def logout_user(request):
+    logout(request)
+    messages.success(request, ('You Have Been Logged Out!'))
+    return redirect('home')
+
+def register_user(request):
+    form = SignUpForm()
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            #first_name = form.cleaned_data['first_name']
+            #last_name = form.cleaned_data['last_name']
+            #email = form.cleaned_data['email']
+            #Login User
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            messages.success(request, ('Registered! Welcome!'))
+            return redirect('home')
+            
+    return render(request, "register.html", {'form':form})
+
+def update_user(request):
+    if request.user.is_authenticated:
+        current_user = User.objects.get(id=request.user.id)
+        form = SignUpForm(request.POST or None, instance=current_user)
+        if form.is_valid():
+            form.save()
+            login(request, current_user)
+            messages.success(request, ('Profile Updated'))
+            return redirect('home')
+
+
+        return render(request, "update_user.html", {'form':form}) 
+    else:
+        messages.success(request, ('You are not Logged In!'))
         return redirect('home')
