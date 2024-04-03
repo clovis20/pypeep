@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from .models import Peep, Profile
-from .forms import PeepForm, SignUpForm
+from .forms import MyUserChangeForm, PeepForm, SignUpForm, ChangePasswordForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -58,6 +58,14 @@ def profile(request, pk):
         messages.success(request, ('You Must Be Logged In To View This Page..'))
         return redirect('home')
     
+
+def my_profile(request):
+    if request.user.is_authenticated:
+        return redirect('profile', pk=request.user.pk)
+    else:
+        messages.success(request, ('You are not Logged In!'))
+        return redirect('home')
+    
 def login_user(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -97,18 +105,53 @@ def register_user(request):
             
     return render(request, "register.html", {'form':form})
 
+# def update_user(request):
+#     if request.user.is_authenticated:
+#         current_user = User.objects.get(id=request.user.id)
+#         form = SignUpForm(request.POST or None, instance=current_user)
+#         if form.is_valid():
+#             form.save()
+#             login(request, current_user)
+#             messages.success(request, ('Profile Updated'))
+#             return redirect('home')
+
+
+#         return render(request, "update_user.html", {'form':form}) 
+#     else:
+#         messages.success(request, ('You are not Logged In!'))
+#         return redirect('home')
+
 def update_user(request):
     if request.user.is_authenticated:
-        current_user = User.objects.get(id=request.user.id)
-        form = SignUpForm(request.POST or None, instance=current_user)
-        if form.is_valid():
-            form.save()
-            login(request, current_user)
-            messages.success(request, ('Profile Updated'))
-            return redirect('home')
-
-
-        return render(request, "update_user.html", {'form':form}) 
+        if request.method == 'POST':
+            form = MyUserChangeForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, ('Profile Updated'))
+                return redirect('update_user')
+        else:
+            form = MyUserChangeForm(instance=request.user)
+            return render(request, 'update_user.html', {"form":form})
     else:
         messages.success(request, ('You are not Logged In!'))
         return redirect('home')
+    
+def update_password(request):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = ChangePasswordForm(request.user, request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, ('Password Updated'))
+                login(request, request.user)
+                return redirect('profile', pk=request.user.pk)
+            else:
+                for error in list(form.errors.values()):
+                    messages.error(request, error)
+                    return redirect('update_password')
+        else:
+            form = ChangePasswordForm(request.user)
+            return render(request, 'update_password.html', {"form":form})
+    else:
+        messages.success(request, ('You are not Logged In!'))
+        return redirect('login')
