@@ -1,6 +1,6 @@
 from typing import Any
 from django import forms
-from .models import Peep
+from .models import Peep, Profile
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from django.contrib.auth.models import User
 
@@ -9,7 +9,7 @@ class PeepForm(forms.ModelForm):
                            widget=forms.widgets.Textarea(
                                attrs={
                                    "placeholder": "Escreva seu Peep!",
-                                   "class":"form-control",
+                                   "class":"form-control no-resize",
                                }
                            ),
                            label="",
@@ -17,7 +17,7 @@ class PeepForm(forms.ModelForm):
     
     class Meta:
         model = Peep
-        exclude = ('user',)
+        exclude = ('user', "likes",)
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label="", widget=forms.TextInput(
@@ -56,7 +56,7 @@ class MyUserChangeForm(UserChangeForm):
         attrs={'class':'form-control', 'placeholder':'First Name'}))
     last_name = forms.CharField(label="", max_length=50, widget=forms.TextInput(
         attrs={'class':'form-control', 'placeholder':'Last Name'}))
-    
+      
     def __init__(self, *args, **kwargs):
         super(MyUserChangeForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs['class'] = 'form-control'
@@ -68,7 +68,7 @@ class MyUserChangeForm(UserChangeForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email')
+        fields = ('username', 'first_name', 'last_name', 'email',)
 
 class ChangePasswordForm(SetPasswordForm):
     class Meta:
@@ -87,3 +87,28 @@ class ChangePasswordForm(SetPasswordForm):
         self.fields['new_password2'].widget.attrs['placeholder'] = 'Confirm Password'
         self.fields['new_password2'].label = ''
         self.fields['new_password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
+
+# Profile Extra Forms
+# class ProfilePicForm(forms.ModelForm):
+#     profile_img = forms.ImageField(label="Profile Picture")
+    
+#     class Meta:
+#        model = Profile
+#        fields = ('profile_img',)
+
+class ProfileForm(forms.ModelForm):
+
+    profile_bio = forms.CharField(label="Profile Bio", max_length=150, required=False, widget=forms.Textarea(
+        attrs={'class':'form-control no-resize', 'placeholder':'Profile Bio'}))
+    homepage_link = forms.CharField(label="", max_length=50, required=False, widget=forms.TextInput(
+        attrs={'class':'form-control', 'placeholder':'Homepage Link'}))
+    facebook_link = forms.CharField(label="", max_length=50, required=False, widget=forms.TextInput(
+        attrs={'class':'form-control', 'placeholder':'Facebook Link'}))
+    instagram_link = forms.CharField(label="", max_length=50, required=False, widget=forms.TextInput(
+        attrs={'class':'form-control', 'placeholder':'Instagram Link'}))
+    linkedin_link = forms.CharField(label="", max_length=50, required=False, widget=forms.TextInput(
+        attrs={'class':'form-control', 'placeholder':'Linkedin Link'}))
+
+    class Meta:
+        model = Profile
+        fields = ('profile_bio', 'homepage_link', 'facebook_link', 'instagram_link', 'linkedin_link', 'profile_img')

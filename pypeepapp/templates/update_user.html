@@ -4,11 +4,13 @@
 <div class='col-md-6 offset-md-3'>
 <h1>Update User</h1><br/>
 
-<form method='POST' action="{% url 'update_user' %}">
+<form method='POST' action="{% url 'update_user' %}" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ user_form.as_p }}
+    
+    {{ profile_form.as_p }}
 <br/>
-    <button type="submit" class="btn btn-secondary">Update</button>
+    <button type="submit" class="btn btn-secondary">Update</button><br/><br/><br/><br/>
 </form>
 </div>
 
