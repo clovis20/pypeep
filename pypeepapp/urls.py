@@ -11,4 +11,6 @@ urlpatterns = [
     path('update_user/', views.update_user, name='update_user'),
     path('update_password/', views.update_password, name='update_password'),
     path('profile/', views.my_profile, name='my_profile'),
+    path('peep_like/<int:pk>', views.peep_like, name="peep_like"),
+    path('peep_show/<int:pk>', views.peep_show, name="peep_show"),
 ]

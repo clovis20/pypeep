@@ -1,7 +1,7 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
 from .models import Peep, Profile
-from .forms import MyUserChangeForm, PeepForm, SignUpForm, ChangePasswordForm
+from .forms import MyUserChangeForm, PeepForm, SignUpForm, ChangePasswordForm, ProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -37,7 +37,7 @@ def profile_list(request):
 def profile(request, pk):
     if request.user.is_authenticated:
         profile = Profile.objects.get(user_id=pk)
-        peeps = Peep.objects.filter(user_id=pk)
+        peeps = Peep.objects.filter(user_id=pk).order_by("-created_at")
 
         #Post Form Logic
         if request.method == 'POST':
@@ -105,37 +105,26 @@ def register_user(request):
             
     return render(request, "register.html", {'form':form})
 
-# def update_user(request):
-#     if request.user.is_authenticated:
-#         current_user = User.objects.get(id=request.user.id)
-#         form = SignUpForm(request.POST or None, instance=current_user)
-#         if form.is_valid():
-#             form.save()
-#             login(request, current_user)
-#             messages.success(request, ('Profile Updated'))
-#             return redirect('home')
-
-
-#         return render(request, "update_user.html", {'form':form}) 
-#     else:
-#         messages.success(request, ('You are not Logged In!'))
-#         return redirect('home')
-
 def update_user(request):
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            form = MyUserChangeForm(request.POST, instance=request.user)
-            if form.is_valid():
-                form.save()
-                messages.success(request, ('Profile Updated'))
-                return redirect('update_user')
-        else:
-            form = MyUserChangeForm(instance=request.user)
-            return render(request, 'update_user.html', {"form":form})
-    else:
-        messages.success(request, ('You are not Logged In!'))
-        return redirect('home')
-    
+     if request.user.is_authenticated:
+         profile_user = Profile.objects.get(user__id=request.user.id)
+
+         if request.method == 'POST':
+             user_form = MyUserChangeForm(request.POST, instance=request.user)
+             profile_form = ProfileForm(request.POST, request.FILES, instance=profile_user)
+             if user_form.is_valid() and profile_form.is_valid():
+                 user_form.save()
+                 profile_form.save()
+                 messages.success(request, ('Profile Updated'))
+                 return redirect('update_user')
+         else:
+             user_form = MyUserChangeForm(instance=request.user)
+             profile_form = ProfileForm(instance=request.user.profile)
+             return render(request, 'update_user.html', {"user_form":user_form, "profile_form":profile_form})
+     else:
+         messages.success(request, ('You are not Logged In!'))
+         return redirect('home')
+
 def update_password(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
@@ -155,3 +144,24 @@ def update_password(request):
     else:
         messages.success(request, ('You are not Logged In!'))
         return redirect('login')
+    
+def peep_like(request, pk):
+    if request.user.is_authenticated:
+        peep = get_object_or_404(Peep, id=pk)
+        if peep.likes.filter(id=request.user.id):
+            peep.likes.remove(request.user)
+        else:
+            peep.likes.add(request.user)
+        return redirect(request.META.get("HTTP_REFERER"))
+
+    else:
+        messages.success(request, ('You are not Logged In!'))
+        return redirect('home')
+    
+def peep_show(request, pk):
+    peep = get_object_or_404(Peep, id=pk)
+    if peep:
+        return render(request, 'show_peep.html', {"peep":peep})
+    else:
+        messages.success(request, ('That Peep Does Not Exist!'))
+        return redirect('home')

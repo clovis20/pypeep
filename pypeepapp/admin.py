@@ -13,7 +13,7 @@ class ProfileInline(admin.StackedInline):
 class UserAdmin(admin.ModelAdmin):
     model = User
     # Just display username fields on admin page
-    fields = ['username']
+    fields = ['username', 'first_name', 'last_name', 'email']
     inlines = [ProfileInline]
 
 # Unregister initial User
@@ -21,6 +21,7 @@ admin.site.unregister(User)
 
 # Register User and Profile
 admin.site.register(User, UserAdmin)
+#admin.site.register(Profile)
 #admin.site.register(Profile)
 
 # Register Peep
