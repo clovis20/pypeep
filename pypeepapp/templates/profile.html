@@ -92,7 +92,8 @@
                     <div class="card-body">
                         <p class="card-text">{% for following in profile.follows.all %}
                             <a href="{% url 'profile' following.user.id %}">
-                            @{{ following }}</a><br/>
+                            @{{ following }}</a> <a href="{% url 'unfollow' following.user.id %}"><i class="fa fa-circle-minus small" 
+                                style="color:grey"></i></a><br/>
                     
                         {% endfor %}</p>
                     </div>
@@ -103,8 +104,13 @@
                     <div class="card-body">
                         <p class="card-text">{% for following in profile.followed_by.all %}
                             <a href="{% url 'profile' following.user.id %}">
-                            @{{ following }}</a><br/>
-                    
+                            @{{ following }}</a> 
+                            
+                            {% if following not in profile.follows.all %}
+                                <a href="{% url 'follow' following.user.id %}"><i class="fa fa-circle-plus small" 
+                                    style="color:grey"></i></a>
+                            {% endif %}<br/>
+                            
                         {% endfor %}</p>
                     </div>
                 </div>
@@ -113,7 +119,7 @@
                 <form method=POST>
                     {% csrf_token %}
                     {% if profile in user.profile.follows.all %}
-                        <button class='btn btn-outline-danger' name='follow'
+                        <button class='btn btn-outline-danger' name='unfollow'
                         value='unfollow' type='submit'>
                             Unfollow @{{ profile.user.username|lower }}
                         </button>
