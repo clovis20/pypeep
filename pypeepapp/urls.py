@@ -13,4 +13,6 @@ urlpatterns = [
     path('profile/', views.my_profile, name='my_profile'),
     path('peep_like/<int:pk>', views.peep_like, name="peep_like"),
     path('peep_show/<int:pk>', views.peep_show, name="peep_show"),
+    path('unfollow/<int:pk>', views.unfollow, name="unfollow"),
+    path('follow/<int:pk>', views.follow, name="follow"),
 ]

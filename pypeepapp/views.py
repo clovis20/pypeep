@@ -34,6 +34,36 @@ def profile_list(request):
         messages.success(request, ('You Must Be Logged In To View This Page..'))
         return redirect('home')
     
+def unfollow(request, pk):
+    if request.user.is_authenticated:
+        # Get the profile to unfollow
+        profile = Profile.objects.get(user_id=pk)
+        # Unfollow the user
+        request.user.profile.follows.remove(profile)
+        # Save our profile
+        request.user.profile.save()
+        # Return Message
+        messages.success(request, (f'You have unfollowed {profile.user.username}!'))
+        return redirect('profile', pk=request.user.pk)
+    else:
+        messages.success(request, ('You are not Logged In!'))
+        return redirect('home')
+    
+def follow(request, pk):
+    if request.user.is_authenticated:
+        # Get the profile to unfollow
+        profile = Profile.objects.get(user_id=pk)
+        # Follow the user
+        request.user.profile.follows.add(profile)
+        # Save our profile
+        request.user.profile.save()
+        # Return Message
+        messages.success(request, (f'You have followed {profile.user.username}!'))
+        return redirect('profile', pk=request.user.pk)
+    else:
+        messages.success(request, ('You are not Logged In!'))
+        return redirect('home')
+    
 def profile(request, pk):
     if request.user.is_authenticated:
         profile = Profile.objects.get(user_id=pk)
@@ -56,8 +86,7 @@ def profile(request, pk):
         return render(request, 'profile.html', {'profile':profile, 'peeps':peeps})
     else:
         messages.success(request, ('You Must Be Logged In To View This Page..'))
-        return redirect('home')
-    
+        return redirect('home')    
 
 def my_profile(request):
     if request.user.is_authenticated:
