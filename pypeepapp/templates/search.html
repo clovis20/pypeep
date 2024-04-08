@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <h1>Search Peeps!</h1><br/>
+
+    <form method=POST>
+        {% csrf_token %}
+
+        <input type='input' class='form-control' placeholder="Search Peeps" name='search'>
+        <br/>
+        
+        <button type="submit" class="btn btn-secondary">Search Peep!</button>
+      </form>
+      <br/>
+
+      {% if search %}
+      You Searched For: {{ search }}<br/><br/>
+
+      {% for peep in searched %}
+        <div class="alert alert-dark" role="alert">
+            <div class="container">
+                <div class="row">
+                    <div class="col-1">
+                        {% if peep.user.profile.profile_img %}
+                        <img src="{{ peep.user.profile.profile_img.url }}" width=50 height=50 class="rounded-circle" alt="{{ profile.user.username }}">
+                        {% else %}
+                        <img src="{% static 'images/default_profile_pic.png' %}" width=50 height=50 class="rounded-circle" alt="{{ profile.user.username }}">
+                        {% endif %}
+
+                    </div>
+                    <div class="col-10">
+                {{ peep.body }}<br/>
+                <small class="text-muted">
+                    ({{ peep.created_at }}) By 
+                    @{{ peep.user.username }}
+                    - {{peep.number_of_likes}}
+                    {% if user in peep.likes.all %}
+                    <a href="{% url 'peep_like' peep.id %}">
+                        <i class="fa-solid fa-heart" style="color:blue"></i></a>
+                    {% else %}
+                    <a href="{% url 'peep_like' peep.id %}">
+                        <i class="fa fa-heart-o" style="color:blue"></i></a>
+                    {% endif %}
+                    <a href="{% url 'peep_show' peep.id %}">
+                        <i class="fa fa-share" style="color:grey"></i></a>                   
+
+                </small>
+            
+        </div><br/><br/>
+                    </div>
+                </div>
+            </div> 
+      {% endfor %}
+
+      {% endif %}
+      <br/><br/>
+{% endblock %}

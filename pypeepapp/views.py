@@ -88,6 +88,32 @@ def profile(request, pk):
         messages.success(request, ('You Must Be Logged In To View This Page..'))
         return redirect('home')    
 
+def followers(request, pk):
+    if request.user.is_authenticated:
+        if request.user.id == pk:
+            profiles = Profile.objects.get(user_id=pk)
+            return render(request, 'followers.html', {"profiles":profiles})
+        else:
+            messages.success(request, ("That's not your profile page!"))
+            return redirect('home')
+            
+    else:
+        messages.success(request, ('You Must Be Logged In To View This Page..'))
+        return redirect('home')
+    
+def follows(request, pk):
+    if request.user.is_authenticated:
+        if request.user.id == pk:
+            profiles = Profile.objects.get(user_id=pk)
+            return render(request, 'follows.html', {"profiles":profiles})
+        else:
+            messages.success(request, ("That's not your profile page!"))
+            return redirect('home')
+            
+    else:
+        messages.success(request, ('You Must Be Logged In To View This Page..'))
+        return redirect('home')
+
 def my_profile(request):
     if request.user.is_authenticated:
         return redirect('profile', pk=request.user.pk)
@@ -194,3 +220,61 @@ def peep_show(request, pk):
     else:
         messages.success(request, ('That Peep Does Not Exist!'))
         return redirect('home')
+    
+def delete_peep(request, pk):
+    if request.user.is_authenticated:
+        peep = get_object_or_404(Peep, id=pk)
+        # Check to see if you own the peep
+        if request.user.username == peep.user.username:
+            # Delete the peep
+            peep.delete()
+            messages.success(request, ('Peep Deleted!'))
+            return redirect(request.META.get("HTTP_REFERER"))
+        else:
+            messages.success(request, ('Denied!'))
+            return redirect('home')
+    else:
+        messages.success(request, ('You are not Logged In!'))
+        return redirect(request.META.get("HTTP_REFERER"))
+    
+def edit_peep(request, pk):
+    if request.user.is_authenticated:
+        peep = get_object_or_404(Peep, id=pk)
+        # Check to see if you own the peep
+        if request.user.username == peep.user.username:
+            form = PeepForm(request.POST or None, instance=peep)
+            if request.method == "POST":
+                if form.is_valid():
+                    peep = form.save(commit=False)
+                    peep.user = request.user
+                    peep.save()
+                    messages.success(request, ('Your Peep Has Been Updated..'))
+                    return redirect('home')
+            else:
+                return render(request, 'edit_peep.html', {"form":form, "peep":peep})
+        else:
+            messages.success(request, ('Denied!'))
+            return redirect('home')
+    else:
+        messages.success(request, ('You are not Logged In!'))
+        return redirect('home')
+    
+def search(request):
+    if request.method == "POST":
+        # Grab the form field input
+        search = request.POST['search']
+        # Search the database
+        searched = Peep.objects.filter(body__contains = search)
+        return render(request, 'search.html', {'search':search, 'searched':searched})
+    else:
+        return render(request, 'search.html', {})
+    
+def search_user(request):
+    if request.method == "POST":
+        # Grab the form field input
+        search = request.POST['search']
+        # Search the database
+        searched = User.objects.filter(username__contains = search)
+        return render(request, 'search_user.html', {'search':search, 'searched':searched})
+    else:
+        return render(request, 'search_user.html', {})

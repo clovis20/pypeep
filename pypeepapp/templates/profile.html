@@ -39,7 +39,15 @@
                                         <i class="fa fa-heart-o" style="color:blue"></i></a>
                                     {% endif %}        
                                     <a href="{% url 'peep_show' peep.id %}">
-                                        <i class="fa fa-share" style="color:grey"></i></a>                     
+                                        <i class="fa fa-share" style="color:grey"></i></a>
+                                    {% if request.user.username == profile.user.username %}
+                                    <a href="{% url 'edit_peep' peep.id %}">
+                                        <i class="fa fa-edit" style="color:grey"></i></a>  
+                                    {% endif %}     
+                                    {% if request.user.username == profile.user.username %}
+                                    <a href="{% url 'delete_peep' peep.id %}">
+                                        <i class="fa fa-trash-alt" style="color:grey"></i></a>  
+                                    {% endif %}                 
 
                                 </small>
                         </div><br/><br/> 
@@ -97,12 +105,15 @@
                     
                         {% endfor %}</p>
                     </div>
+                    <div class="card-footer text-end">
+                        <a href="{% url 'follows' profile.user.id %}" class='btn btn-sm btn-outline-secondary'>See All</a>
+                    </div>
                 </div>
                 <br/>
                 <div class="card">
                     <h5 class="card-header">Followed By</h5>
                     <div class="card-body">
-                        <p class="card-text">{% for following in profile.followed_by.all %}
+                        <p class="card-text">{% for following in profile.followed_by.all|slice:3 %}
                             <a href="{% url 'profile' following.user.id %}">
                             @{{ following }}</a> 
                             
@@ -112,6 +123,9 @@
                             {% endif %}<br/>
                             
                         {% endfor %}</p>
+                    </div>
+                    <div class="card-footer text-end">
+                        <a href="{% url 'followers' profile.user.id %}" class='btn btn-sm btn-outline-secondary'>See All</a>
                     </div>
                 </div>
                 <br/>
