@@ -5,9 +5,13 @@ description = ""
 authors = ["clovis20 <acetruco@hotmail.com>"]
 readme = "README.md"
 
+[project]
+dynamic = ["dependencies"]
+
 [tool.poetry.dependencies]
 python = "^3.10"
 gitpython = "^3.1.43"
+dependencies = {file = ["requirements.txt"]}
 
 
 [build-system]
